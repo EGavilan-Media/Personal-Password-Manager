@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>EGM - User Login</title>
+    <!-- Bootstrap v4.4.1 -->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/bootstrap.css">
+    <!-- favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.jpg">
+</head>
+
+<body class="bg-secondary">
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header">
+                                    <h3 class="text-center font-weight-light my-4">Login</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="login_form">
+                                        <span id="login_error_message"></span>
+                                        <div class="form-group">
+                                            <label>Email <i class="text-danger">*</i></label>
+                                            <input type="email" class="form-control py-4" id="email" name="email"
+                                                placeholder="Enter first email" maxlength="50">
+                                            <div id="email_error_message" class="text-danger"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Password <i class="text-danger">*</i></label>
+                                            <input type="password" class="form-control py-4" id="password"
+                                                name="password" maxlength="50" placeholder="Enter password">
+                                            <div id="password_error_message" class="text-danger"></div>
+                                        </div>
+                                        <div
+                                            class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer text-center">
+                                    <div class="small"><a href="register.html">Need an account? Sign up!</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!-- JQuery-3.4.1 -->
+            <script src="vendor/jquery-3.4.1.min.js"></script>
+            <script>
+                $(document).ready(function () {
+
+                    $('#login_form').on('submit', function (event) {
+                        event.preventDefault();
+                        loginUser();
+                    });
+
+                    var error_email = false;
+                    var error_password = false;
+
+                    $("#email").focusout(function () {
+                        check_email();
+                    });
+
+                    $("#password").focusout(function () {
+                        check_password();
+                    });
+
+                    function check_email() {
+                        var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
+                        var email_length = $("#email").val().length;
+
+                        if ($.trim($('#email').val()) == '') {
+                            $("#email_error_message").html("Email is a required field.");
+                            $("#email_error_message").show();
+                            $("#email").addClass("is-invalid");
+                        } else if (!(pattern.test($("#email").val()))) {
+                            $("#email_error_message").html("Invalid email address");
+                            $("#email_error_message").show();
+                            error_email = true;
+                            $("#email").addClass("is-invalid");
+                        } else {
+                            $("#email_error_message").hide();
+                            $("#email").removeClass("is-invalid");
+                        }
+                    }
+
+                    function check_password() {
+                        var password_length = $("#password").val().length;
+
+                        if ($.trim($('#password').val()) == '') {
+                            $("#password_error_message").html("Password is a required field.");
+                            $("#password_error_message").show();
+                            $("#password").addClass("is-invalid");
+                            error_password = true;
+                        } else if (password_length < 8) {
+                            $("#password_error_message").html("Please enter at least 8 characters!");
+                            $("#password_error_message").show();
+                            error_password = true;
+                            $("#password").addClass("is-invalid");
+                        } else {
+                            $("#password_error_message").hide();
+                            $("#password").removeClass("is-invalid");
+                        }
+                    }
+
+                    function loginUser() {
+
+                        error_email = false;
+                        error_password = false;
+
+                        check_email();
+                        check_password();
+
+                        if (error_email == false && error_password == false) {
+
+                            var dataAction = {
+                                "action": "login_user"
+                            };
+
+                            data = $('#login_form').serialize();
+                            data=data + "&" + $.param(dataAction);
+
+                            $.ajax({
+                                type: "POST",
+                                data: data,
+                                url: "profile_action.php",
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data.status == 'success') {
+                                        window.location = "index.php";
+                                    } else if (data.status == 'error') {
+                                        $('#login_error_message').html('<div class="alert alert-danger">' + data.error + '</div>');
+                                    }
+                                },
+                                error: function () {
+                                    alert("Oops! Something went wrong.");
+                                }
+                            });
+                        } else {
+                            $('#login_error_message').html('<div class="alert alert-danger">Incorrect email or password.</div>');
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</body>
+
+</html>
